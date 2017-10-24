@@ -24,9 +24,13 @@ function Import-ADUser
   .DESCRIPTION  
     Creates a custom user object from CSV files and a new Active Directory users in batch.
     It reads account information from provided CSV file and expects the following columns:
-    | Name     | GivenName | Surname | SamAccountName | Description     | EmailAddress     | Path                         |
-    |:---------|:----------|:--------|:---------------|:----------------|:-----------------|:-----------------------------|
-    | Jane Doe | Jane      | Doe     | jdoe           | Account Manager | jdoe@example.com | "CN=Users,DC=example,DC=com" |    
+    Name - user account name, e.g., Jane Doe
+    GivenName - user given name, e.g., Jane
+    Surname - user account last name, e.g., Doe
+    SamAccountName - user account SamAccountName, e.g., jdoe
+    Description - user account description, e.g., Managing Director of Operations
+    EmailAddress - user account email address, e.g., jdoe@example.com
+    Path - user account Organizational Unit path, e.g., "CN=Users,DC=example,DC=com"
 
   .NOTES
     Authors: Marcin Wisniowski (@wiredmind)
