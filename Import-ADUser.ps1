@@ -18,11 +18,26 @@
 Function Import-ADUser
 {
   <#
-  .Synopsis
-  Creates new Active Directory users in batch.
-  .Description
-  Creates new Active Directory users in batch, reading account information from
-  a csv file and passing to New-ADUser.
+  .SYNOPSIS
+    Creates new Active Directory users in batch.
+    
+  .DESCRIPTION  
+    Creates a custom user object from CSV files and a new Active Directory users in batch.
+    It reads account information from provided CSV file and expects the following columns:
+    | Name     | GivenName | Surname | SamAccountName | Description     | EmailAddress     | Path                         |
+    |:---------|:----------|:--------|:---------------|:----------------|:-----------------|:-----------------------------|
+    | Jane Doe | Jane      | Doe     | jdoe           | Account Manager | jdoe@example.com | "CN=Users,DC=example,DC=com" |    
+
+  .NOTES
+    Authors: Marcin Wisniowski (@wiredmind)
+    License: ALv2  
+  
+  .PARAMETER Path
+    Specify the CSV file to import account data from. By default it will look for `UserList.csv`
+    in current working directory.
+    
+  .EXAMPLE
+    Import-ADUser -Path .\UserList.csv
   #>
   param
   (
