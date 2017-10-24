@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-Function Import-ADUser
+function Import-ADUser
 {
   <#
   .SYNOPSIS
@@ -76,7 +76,7 @@ Function Import-ADUser
     {
       Write-Information "-----> IMPORT Error: User $($user.SamAccountName)" -InformationAction Continue
       Write-Error $_.Exception.Message
-      Continue
+      continue
     }
   }
 }
