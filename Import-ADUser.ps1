@@ -80,7 +80,7 @@ function Import-ADUser
         }
         catch
         {
-          Write-Verbose "-----> IMPORT Error: User $($obj.SamAccountName)" -OutVariable Con
+          Write-Verbose "-----> IMPORT Error: User $($obj.SamAccountName)"
           Write-Error $_.Exception.Message
           continue
         }
