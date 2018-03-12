@@ -19,68 +19,72 @@ function Import-ADUser
 {
   <#
   .SYNOPSIS
-    Creates new Active Directory users in batch.
+    Creates new Active Directory user from an object.
     
   .DESCRIPTION  
-    Creates a custom user object from CSV files and a new Active Directory users in batch.
-    It reads account information from provided CSV file and expects the following columns:
-    Name - user account name, e.g., Jane Doe
-    GivenName - user given name, e.g., Jane
-    Surname - user account last name, e.g., Doe
-    SamAccountName - user account SamAccountName, e.g., jdoe
-    Description - user account description, e.g., Managing Director of Operations
-    EmailAddress - user account email address, e.g., jdoe@example.com
-    Path - user account Organizational Unit path, e.g., "CN=Users,DC=example,DC=com"
+    Creates new Active Directory user from an object.
 
   .NOTES
     Authors: Marcin Wisniowski (@wiredmind)
     License: ALv2  
   
-  .PARAMETER Path
-    Specify the CSV file to import account data from. By default it will look for `UserList.csv`
-    in current working directory.
+  .PARAMETER InputObject
+    Any kind of object contining following properties
+      Name - user account name, e.g., Jane Doe
+      GivenName - user given name, e.g., Jane
+      Surname - user account last name, e.g., Doe
+      SamAccountName - user account SamAccountName, e.g., jdoe
+      Description - user account description, e.g., Managing Director of Operations
+      EmailAddress - user account email address, e.g., jdoe@example.com
+      Path - user account Organizational Unit path, e.g., "CN=Users,DC=example,DC=com"
     
   .EXAMPLE
-    Import-ADUser -Path .\UserList.csv
+    Import-Csv .\UserList.csv | Import-ADUser
   #>
+  [CmdletBinding()]
   param
   (
     [Parameter(
+      Mandatory=$true,
       Position=0,
       ValueFromPipeline=$true,
       ValueFromPipelineByPropertyName=$true)
     ]
-    [string]$Path = "UserList.csv"
+    [PSCustomObject[]]$InputObject
   )
-  
-  $Users = Import-Csv $Path
 
-  foreach ($u in $Users)
+  BEGIN {}
+  PROCESS 
   {
-    try
+    foreach ($obj in $InputObject)
     {
-      $user = @{ 
-        "Name" = [string]"$($u.Name)";
-        "DisplayName" = [string]"$($u.Name)";
-        "GivenName" = [string]"$($u.GivenName)";
-        "Surname" = [string]"$($u.Surname)";
-        "SamAccountName" = [string]"$($u.SamAccountName)";
-        "Description" = [string]"$($u.Description)";
-        "EmailAddress" = [string]"$($u.EmailAddress)";
-        "UserPrincipalName" = [string]("$($u.SamAccountName)@$((Get-ADDomain).DNSRoot)");
-        "Path" = [string]"$($u.Path)";
-        "AccountPassword" = ConvertTo-SecureString "$($u.AccountPassword)" -AsPlainText -Force;
-        "ChangePasswordAtLogon" = $false;
-        "Enabled" = $true;
-        "PasswordNeverExpires" = $true
-      }
-      $user = New-ADUser @user
-    }
-    catch
-    {
-      Write-Information "-----> IMPORT Error: User $($user.SamAccountName)" -InformationAction Continue
-      Write-Error $_.Exception.Message
-      continue
+        try
+        {
+          $properties = @{ 
+            "Name" = [string]"$($obj.Name)";
+            "DisplayName" = [string]"$($obj.Name)";
+            "GivenName" = [string]"$($obj.GivenName)";
+            "Surname" = [string]"$($obj.Surname)";
+            "SamAccountName" = [string]"$($obj.SamAccountName)";
+            "Description" = [string]"$($obj.Description)";
+            "EmailAddress" = [string]"$($obj.EmailAddress)";
+            "UserPrincipalName" = [string]("$($obj.SamAccountName)@$((Get-ADDomain).DNSRoot)");
+            "Path" = [string]"$($obj.Path)";
+            "AccountPassword" = ConvertTo-SecureString "$($obj.AccountPassword)" -AsPlainText -Force;
+            "ChangePasswordAtLogon" = $false;
+            "Enabled" = $true;
+            "PasswordNeverExpires" = $true
+          }
+          $user = New-ADUser @properties -ErrorAction Stop
+          Write-Output $user
+        }
+        catch
+        {
+          Write-Verbose "-----> IMPORT Error: User $($obj.SamAccountName)" -OutVariable Con
+          Write-Error $_.Exception.Message
+          continue
+        }
     }
   }
+  END {}
 }
